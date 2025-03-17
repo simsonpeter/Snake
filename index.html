@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Premium Snake Game</title>
+    <title>Luxury Snake Game</title>
     <style>
         * {
             margin: 0;
@@ -15,16 +15,17 @@
             height: 100%;
             overflow: hidden;
             touch-action: none;
+            background: #1a1a2e;
         }
 
         body {
             display: flex;
             flex-direction: column;
             align-items: center;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
             font-family: 'Arial', sans-serif;
             color: white;
             position: relative;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
         }
 
         #game-container {
@@ -37,11 +38,12 @@
         }
 
         #game-board {
-            background-color: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.05);
             border-radius: 15px;
             max-width: 95vmin;
             max-height: 95vmin;
             aspect-ratio: 1/1;
+            box-shadow: 0 0 30px rgba(0,0,0,0.3);
         }
 
         #score-display {
@@ -49,13 +51,17 @@
             top: 20px;
             font-size: 2em;
             text-shadow: 0 0 10px rgba(255,255,255,0.3);
+            background: rgba(0,0,0,0.3);
+            padding: 10px 20px;
+            border-radius: 10px;
         }
 
         #level-display {
             position: absolute;
-            top: 60px;
+            top: 80px;
             font-size: 1.5em;
             color: #00ff88;
+            text-shadow: 0 0 10px rgba(0,255,136,0.3);
         }
 
         #game-over {
@@ -64,11 +70,12 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: rgba(0,0,0,0.9);
-            padding: 30px;
+            background: rgba(0,0,0,0.95);
+            padding: 30px 40px;
             border-radius: 20px;
             text-align: center;
             border: 2px solid #00ff88;
+            box-shadow: 0 0 30px rgba(0,255,136,0.2);
             z-index: 2;
         }
 
@@ -78,19 +85,18 @@
             width: 150px;
             height: 150px;
             touch-action: none;
+            filter: drop-shadow(0 0 10px rgba(0,255,136,0.3));
         }
 
         #joystick-bg {
             fill: rgba(255, 255, 255, 0.1);
             stroke: #00ff88;
             stroke-width: 2;
-            filter: drop-shadow(0 0 10px rgba(0,255,136,0.3));
         }
 
         #joystick-thumb {
             fill: #00ff88;
             transition: all 0.1s;
-            filter: drop-shadow(0 0 5px rgba(0,255,136,0.5));
         }
 
         button#restart-btn {
@@ -101,31 +107,40 @@
             border-radius: 25px;
             cursor: pointer;
             font-weight: bold;
-            transition: transform 0.2s;
+            transition: all 0.2s;
+            margin-top: 15px;
+            filter: drop-shadow(0 0 5px rgba(0,255,136,0.3));
         }
 
         button#restart-btn:hover {
             transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(0,255,136,0.5);
+        }
+
+        @keyframes glow {
+            0% { filter: drop-shadow(0 0 5px #00ff88); }
+            50% { filter: drop-shadow(0 0 15px #00ff88); }
+            100% { filter: drop-shadow(0 0 5px #00ff88); }
         }
 
         .level-up {
-            animation: levelUp 1s ease-out;
+            animation: level-up 0.5s ease-out;
         }
 
-        @keyframes levelUp {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.2); }
-            100% { transform: scale(1); }
+        @keyframes level-up {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 1; }
         }
     </style>
 </head>
 <body>
-    <div id="level-display">Level: 1</div>
     <div id="score-display">Score: 0</div>
+    <div id="level-display">Level: 1</div>
     <div id="game-container">
         <canvas id="game-board"></canvas>
         <div id="game-over">
-            <h2>Game Over!</h2>
+            <h2 style="color: #00ff88; margin-bottom: 15px;">Game Over!</h2>
             <p>Final Score: <span id="final-score">0</span></p>
             <p>Final Level: <span id="final-level">1</span></p>
             <button id="restart-btn">Play Again</button>
@@ -206,12 +221,12 @@
                 let newDx = 0;
                 let newDy = 0;
 
-                if(Math.abs(dirX) > threshold) newDx = Math.sign(dirX);
-                if(Math.abs(dirY) > threshold) newDy = Math.sign(dirY);
-
-                if(newDx && newDy) {
-                    if(Math.abs(dirX) > Math.abs(dirY)) newDy = 0;
-                    else newDx = 0;
+                if(Math.abs(dirX) > Math.abs(dirY)) {
+                    newDx = Math.sign(dirX);
+                    newDy = 0;
+                } else if(Math.abs(dirY) > threshold) {
+                    newDy = Math.sign(dirY);
+                    newDx = 0;
                 }
 
                 if(newDx !== -dx || newDy !== -dy) {
@@ -293,20 +308,26 @@
         }
 
         function draw() {
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
             // Draw snake body
-            ctx.fillStyle = '#00ff88';
+            const bodyGradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+            bodyGradient.addColorStop(0, '#00ff88');
+            bodyGradient.addColorStop(1, '#00cc77');
+            
             snake.forEach((segment, index) => {
                 if(index > 0) {
+                    ctx.fillStyle = bodyGradient;
+                    ctx.shadowColor = '#00ff88';
+                    ctx.shadowBlur = 10;
                     ctx.beginPath();
                     ctx.roundRect(
-                        segment.x * gridSize + 1,
-                        segment.y * gridSize + 1,
-                        gridSize - 2,
-                        gridSize - 2,
-                        4
+                        segment.x * gridSize + 2,
+                        segment.y * gridSize + 2,
+                        gridSize - 4,
+                        gridSize - 4,
+                        5
                     );
                     ctx.fill();
                 }
@@ -316,49 +337,79 @@
             const head = snake[0];
             const headX = head.x * gridSize;
             const headY = head.y * gridSize;
+            const size = gridSize - 4;
             
-            // Head shape with direction styling
-            ctx.fillStyle = '#00ff88';
-            ctx.beginPath();
-            const radius = gridSize/2 - 1;
-            ctx.arc(
-                headX + radius + (dx * radius),
-                headY + radius + (dy * radius),
-                radius,
-                0,
-                Math.PI * 2
+            // Head gradient
+            const headGradient = ctx.createRadialGradient(
+                headX + size/2, headY + size/2, 5,
+                headX + size/2, headY + size/2, size/2
             );
+            headGradient.addColorStop(0, '#aaffee');
+            headGradient.addColorStop(1, '#00cc88');
+
+            ctx.fillStyle = headGradient;
+            ctx.shadowColor = '#00ff88';
+            ctx.shadowBlur = 15;
+            
+            // Directional head shape
+            ctx.beginPath();
+            if(dx !== 0) {
+                ctx.ellipse(
+                    headX + size/2 + dx * size/3,
+                    headY + size/2,
+                    size/1.5,
+                    size/2,
+                    0,
+                    0,
+                    Math.PI * 2
+                );
+            } else {
+                ctx.ellipse(
+                    headX + size/2,
+                    headY + size/2 + dy * size/3,
+                    size/2,
+                    size/1.5,
+                    0,
+                    0,
+                    Math.PI * 2
+                );
+            }
             ctx.fill();
 
-            // Add eyes
-            const eyeRadius = 3;
-            const eyeOffset = 5;
-            const pupilRadius = 1.5;
-            [1, -1].forEach(side => {
-                const eyeX = headX + radius + (dx * (radius - eyeOffset)) + (dy * side * eyeOffset);
-                const eyeY = headY + radius + (dy * (radius - eyeOffset)) + (dx * side * -eyeOffset);
-                
-                // Eye white
-                ctx.fillStyle = 'white';
+            // Draw eyes
+            const eyeSize = size/5;
+            [ -1, 1 ].forEach(i => {
+                // Eye whites
+                ctx.fillStyle = 'rgba(255,255,255,0.9)';
                 ctx.beginPath();
-                ctx.arc(eyeX, eyeY, eyeRadius, 0, Math.PI * 2);
+                ctx.arc(
+                    headX + size/2 + (dx * size/3) + (dy * i * size/4),
+                    headY + size/2 + (dy * size/3) + (dx * i * -size/4),
+                    eyeSize,
+                    0,
+                    Math.PI * 2
+                );
                 ctx.fill();
 
-                // Pupil
+                // Pupils
                 ctx.fillStyle = '#1a1a2e';
                 ctx.beginPath();
                 ctx.arc(
-                    eyeX + (dx * eyeRadius/2),
-                    eyeY + (dy * eyeRadius/2),
-                    pupilRadius,
+                    headX + size/2 + (dx * size/3) + (dy * i * size/4) + dx * eyeSize/2,
+                    headY + size/2 + (dy * size/3) + (dx * i * -size/4) + dy * eyeSize/2,
+                    eyeSize/2,
                     0,
                     Math.PI * 2
                 );
                 ctx.fill();
             });
 
+            ctx.shadowBlur = 0;
+
             // Draw food
             ctx.fillStyle = '#ff0066';
+            ctx.shadowColor = '#ff0066';
+            ctx.shadowBlur = 20;
             ctx.beginPath();
             ctx.arc(
                 food.x * gridSize + gridSize/2,
@@ -368,6 +419,7 @@
                 Math.PI * 2
             );
             ctx.fill();
+            ctx.shadowBlur = 0;
         }
 
         function generateFood() {
@@ -405,7 +457,6 @@
             startGame();
         });
 
-        // Prevent default touch behavior
         document.addEventListener('touchmove', (e) => {
             e.preventDefault();
         }, { passive: false });
