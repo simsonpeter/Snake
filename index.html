@@ -2,42 +2,60 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Snake Game with Joystick</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Full Screen Snake Game</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            overflow: hidden;
+            touch-action: none;
+        }
+
         body {
             display: flex;
             flex-direction: column;
             align-items: center;
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            margin: 0;
-            min-height: 100vh;
-            touch-action: manipulation;
             font-family: 'Arial', sans-serif;
             color: white;
+            position: relative;
         }
 
         #game-container {
-            position: relative;
-            margin-top: 20px;
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            padding: 20px;
         }
 
         #game-board {
             background-color: rgba(255, 255, 255, 0.1);
             border-radius: 15px;
-            box-shadow: 0 0 30px rgba(0,0,0,0.3);
+            max-width: 95vmin;
+            max-height: 95vmin;
+            aspect-ratio: 1/1;
         }
 
         #score-display {
+            position: absolute;
+            top: 20px;
             font-size: 2em;
-            margin: 20px 0;
             text-shadow: 0 0 10px rgba(255,255,255,0.3);
         }
 
         #level-display {
+            position: absolute;
+            top: 60px;
             font-size: 1.5em;
             color: #00ff88;
-            margin-bottom: 10px;
         }
 
         #game-over {
@@ -51,13 +69,15 @@
             border-radius: 20px;
             text-align: center;
             border: 2px solid #00ff88;
+            z-index: 2;
         }
 
         .joystick-container {
-            position: relative;
+            position: fixed;
+            bottom: 30px;
             width: 150px;
             height: 150px;
-            margin-top: 30px;
+            touch-action: none;
         }
 
         #joystick-bg {
@@ -103,7 +123,7 @@
     <div id="level-display">Level: 1</div>
     <div id="score-display">Score: 0</div>
     <div id="game-container">
-        <canvas id="game-board" width="400" height="400"></canvas>
+        <canvas id="game-board"></canvas>
         <div id="game-over">
             <h2>Game Over!</h2>
             <p>Final Score: <span id="final-score">0</span></p>
@@ -130,8 +150,8 @@
         const restartBtn = document.getElementById('restart-btn');
         const joystickThumb = document.getElementById('joystick-thumb');
 
-        const gridSize = 20;
-        const tileCount = canvas.width / gridSize;
+        let gridSize = 20;
+        let tileCount;
         let snake = [{ x: 10, y: 10 }];
         let food = { x: 15, y: 15 };
         let dx = 1;
@@ -142,6 +162,18 @@
         let baseSpeed = 150;
         let isTouching = false;
         let joystickPos = { x: 50, y: 50 };
+
+        // Responsive canvas setup
+        function resizeCanvas() {
+            const container = document.getElementById('game-container');
+            const size = Math.min(container.clientWidth, container.clientHeight) * 0.9;
+            canvas.width = size;
+            canvas.height = size;
+            gridSize = Math.floor(size / 20);
+            tileCount = Math.floor(size / gridSize);
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
 
         // Joystick Logic
         const joystick = {
@@ -174,14 +206,10 @@
                 let newDx = 0;
                 let newDy = 0;
 
-                if(Math.abs(dirX) > threshold) {
-                    newDx = Math.sign(dirX);
-                }
-                if(Math.abs(dirY) > threshold) {
-                    newDy = Math.sign(dirY);
-                }
+                if(Math.abs(dirX) > threshold) newDx = Math.sign(dirX);
+                if(Math.abs(dirY) > threshold) newDy = Math.sign(dirY);
 
-                if(newDx !== 0 && newDy !== 0) {
+                if(newDx && newDy) {
                     if(Math.abs(dirX) > Math.abs(dirY)) newDy = 0;
                     else newDx = 0;
                 }
@@ -270,7 +298,7 @@
 
             // Draw snake
             ctx.fillStyle = '#00ff88';
-            snake.forEach((segment, index) => {
+            snake.forEach(segment => {
                 ctx.fillRect(
                     segment.x * gridSize + 1,
                     segment.y * gridSize + 1,
@@ -326,6 +354,11 @@
             gameOverScreen.style.display = 'none';
             startGame();
         });
+
+        // Prevent default touch behavior
+        document.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+        }, { passive: false });
 
         startGame();
     </script>
