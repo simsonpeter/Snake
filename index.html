@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Luxury Snake Game</title>
+    <title>Enhanced Snake Game</title>
     <style>
         * {
             margin: 0;
@@ -190,7 +190,7 @@
         window.addEventListener('resize', resizeCanvas);
         resizeCanvas();
 
-        // Joystick Logic
+        // Improved joystick logic
         const joystick = {
             maxDistance: 30,
             center: { x: 50, y: 50 },
@@ -217,21 +217,26 @@
                 this.updateDirection(dirX, dirY);
             },
             updateDirection(dirX, dirY) {
-                const threshold = 0.3;
+                const threshold = 0.4;
                 let newDx = 0;
                 let newDy = 0;
 
-                if(Math.abs(dirX) > Math.abs(dirY)) {
+                const absDX = Math.abs(dirX);
+                const absDY = Math.abs(dirY);
+                
+                if(absDX > absDY && absDX > threshold) {
                     newDx = Math.sign(dirX);
                     newDy = 0;
-                } else if(Math.abs(dirY) > threshold) {
+                } else if(absDY > threshold) {
                     newDy = Math.sign(dirY);
                     newDx = 0;
                 }
 
-                if(newDx !== -dx || newDy !== -dy) {
-                    dx = newDx;
-                    dy = newDy;
+                if((newDx !== 0 && newDx !== dx) || (newDy !== 0 && newDy !== dy)) {
+                    if(newDx !== -dx && newDy !== -dy) {
+                        dx = newDx;
+                        dy = newDy;
+                    }
                 }
             }
         };
@@ -303,15 +308,34 @@
                 snake.pop();
             }
 
-            if(isCollision()) return gameOver();
+            if(isCollision()) {
+                setTimeout(gameOver, 50);
+                return;
+            }
             draw();
         }
 
         function draw() {
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
+            // Clear canvas with solid color
+            ctx.fillStyle = '#1a1a2e';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Draw snake body
+            // Draw food first
+            ctx.fillStyle = '#ff0066';
+            ctx.shadowColor = '#ff0066';
+            ctx.shadowBlur = 20;
+            ctx.beginPath();
+            ctx.arc(
+                food.x * gridSize + gridSize/2,
+                food.y * gridSize + gridSize/2,
+                gridSize/2 - 2,
+                0,
+                Math.PI * 2
+            );
+            ctx.fill();
+            ctx.shadowBlur = 0;
+
+            // Draw snake body with clear separation
             const bodyGradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
             bodyGradient.addColorStop(0, '#00ff88');
             bodyGradient.addColorStop(1, '#00cc77');
@@ -339,7 +363,6 @@
             const headY = head.y * gridSize;
             const size = gridSize - 4;
             
-            // Head gradient
             const headGradient = ctx.createRadialGradient(
                 headX + size/2, headY + size/2, 5,
                 headX + size/2, headY + size/2, size/2
@@ -351,7 +374,6 @@
             ctx.shadowColor = '#00ff88';
             ctx.shadowBlur = 15;
             
-            // Directional head shape
             ctx.beginPath();
             if(dx !== 0) {
                 ctx.ellipse(
@@ -379,7 +401,6 @@
             // Draw eyes
             const eyeSize = size/5;
             [ -1, 1 ].forEach(i => {
-                // Eye whites
                 ctx.fillStyle = 'rgba(255,255,255,0.9)';
                 ctx.beginPath();
                 ctx.arc(
@@ -391,7 +412,6 @@
                 );
                 ctx.fill();
 
-                // Pupils
                 ctx.fillStyle = '#1a1a2e';
                 ctx.beginPath();
                 ctx.arc(
@@ -404,21 +424,6 @@
                 ctx.fill();
             });
 
-            ctx.shadowBlur = 0;
-
-            // Draw food
-            ctx.fillStyle = '#ff0066';
-            ctx.shadowColor = '#ff0066';
-            ctx.shadowBlur = 20;
-            ctx.beginPath();
-            ctx.arc(
-                food.x * gridSize + gridSize/2,
-                food.y * gridSize + gridSize/2,
-                gridSize/2 - 2,
-                0,
-                Math.PI * 2
-            );
-            ctx.fill();
             ctx.shadowBlur = 0;
         }
 
