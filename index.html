@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Full Screen Snake Game</title>
+    <title>Premium Snake Game</title>
     <style>
         * {
             margin: 0;
@@ -296,15 +296,65 @@
             ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Draw snake
+            // Draw snake body
             ctx.fillStyle = '#00ff88';
-            snake.forEach(segment => {
-                ctx.fillRect(
-                    segment.x * gridSize + 1,
-                    segment.y * gridSize + 1,
-                    gridSize - 2,
-                    gridSize - 2
+            snake.forEach((segment, index) => {
+                if(index > 0) {
+                    ctx.beginPath();
+                    ctx.roundRect(
+                        segment.x * gridSize + 1,
+                        segment.y * gridSize + 1,
+                        gridSize - 2,
+                        gridSize - 2,
+                        4
+                    );
+                    ctx.fill();
+                }
+            });
+
+            // Draw snake head
+            const head = snake[0];
+            const headX = head.x * gridSize;
+            const headY = head.y * gridSize;
+            
+            // Head shape with direction styling
+            ctx.fillStyle = '#00ff88';
+            ctx.beginPath();
+            const radius = gridSize/2 - 1;
+            ctx.arc(
+                headX + radius + (dx * radius),
+                headY + radius + (dy * radius),
+                radius,
+                0,
+                Math.PI * 2
+            );
+            ctx.fill();
+
+            // Add eyes
+            const eyeRadius = 3;
+            const eyeOffset = 5;
+            const pupilRadius = 1.5;
+            [1, -1].forEach(side => {
+                const eyeX = headX + radius + (dx * (radius - eyeOffset)) + (dy * side * eyeOffset);
+                const eyeY = headY + radius + (dy * (radius - eyeOffset)) + (dx * side * -eyeOffset);
+                
+                // Eye white
+                ctx.fillStyle = 'white';
+                ctx.beginPath();
+                ctx.arc(eyeX, eyeY, eyeRadius, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Pupil
+                ctx.fillStyle = '#1a1a2e';
+                ctx.beginPath();
+                ctx.arc(
+                    eyeX + (dx * eyeRadius/2),
+                    eyeY + (dy * eyeRadius/2),
+                    pupilRadius,
+                    0,
+                    Math.PI * 2
                 );
+                ctx.fill();
             });
 
             // Draw food
