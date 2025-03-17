@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Enhanced Snake Game</title>
+    <title>Snake Game with Visible Walls</title>
     <style>
         * {
             margin: 0;
@@ -25,7 +25,6 @@
             font-family: 'Arial', sans-serif;
             color: white;
             position: relative;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
         }
 
         #game-container {
@@ -190,7 +189,7 @@
         window.addEventListener('resize', resizeCanvas);
         resizeCanvas();
 
-        // Improved joystick logic
+        // Joystick Logic
         const joystick = {
             maxDistance: 30,
             center: { x: 50, y: 50 },
@@ -316,11 +315,21 @@
         }
 
         function draw() {
-            // Clear canvas with solid color
+            // Clear canvas
             ctx.fillStyle = '#1a1a2e';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Draw food first
+            // Draw play area with visible walls
+            const playAreaSize = tileCount * gridSize;
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
+            ctx.fillRect(0, 0, playAreaSize, playAreaSize);
+            
+            // Draw grid walls
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(0, 0, playAreaSize, playAreaSize);
+
+            // Draw food
             ctx.fillStyle = '#ff0066';
             ctx.shadowColor = '#ff0066';
             ctx.shadowBlur = 20;
@@ -335,7 +344,7 @@
             ctx.fill();
             ctx.shadowBlur = 0;
 
-            // Draw snake body with clear separation
+            // Draw snake body
             const bodyGradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
             bodyGradient.addColorStop(0, '#00ff88');
             bodyGradient.addColorStop(1, '#00cc77');
