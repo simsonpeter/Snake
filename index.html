@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Snake Game with Visible Walls</title>
+    <title>Ultimate Snake Game</title>
     <style>
         * {
             margin: 0;
@@ -39,6 +39,7 @@
         #game-board {
             background: rgba(255, 255, 255, 0.05);
             border-radius: 15px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
             max-width: 95vmin;
             max-height: 95vmin;
             aspect-ratio: 1/1;
@@ -116,12 +117,6 @@
             box-shadow: 0 0 15px rgba(0,255,136,0.5);
         }
 
-        @keyframes glow {
-            0% { filter: drop-shadow(0 0 5px #00ff88); }
-            50% { filter: drop-shadow(0 0 15px #00ff88); }
-            100% { filter: drop-shadow(0 0 5px #00ff88); }
-        }
-
         .level-up {
             animation: level-up 0.5s ease-out;
         }
@@ -177,7 +172,6 @@
         let isTouching = false;
         let joystickPos = { x: 50, y: 50 };
 
-        // Responsive canvas setup
         function resizeCanvas() {
             const container = document.getElementById('game-container');
             const size = Math.min(container.clientWidth, container.clientHeight) * 0.9;
@@ -189,7 +183,6 @@
         window.addEventListener('resize', resizeCanvas);
         resizeCanvas();
 
-        // Joystick Logic
         const joystick = {
             maxDistance: 30,
             center: { x: 50, y: 50 },
@@ -240,7 +233,6 @@
             }
         };
 
-        // Touch/Mouse Events
         const handleStart = (e) => {
             isTouching = true;
             const clientX = e.touches ? e.touches[0].clientX : e.clientX;
@@ -270,7 +262,6 @@
         document.addEventListener('mousemove', handleMove);
         document.addEventListener('mouseup', handleEnd);
 
-        // Game Functions
         function updateLevel() {
             const newLevel = Math.floor(score / 50) + 1;
             if(newLevel > level) {
@@ -315,7 +306,6 @@
         }
 
         function draw() {
-            // Clear canvas
             ctx.fillStyle = '#1a1a2e';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
