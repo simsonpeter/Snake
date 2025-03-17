@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Ultimate Snake Game</title>
+    <title>Snake Game with High Scores</title>
     <style>
         * {
             margin: 0;
@@ -49,6 +49,7 @@
         #score-display {
             position: absolute;
             top: 20px;
+            left: 20px;
             font-size: 2em;
             text-shadow: 0 0 10px rgba(255,255,255,0.3);
             background: rgba(0,0,0,0.3);
@@ -59,6 +60,7 @@
         #level-display {
             position: absolute;
             top: 80px;
+            left: 20px;
             font-size: 1.5em;
             color: #00ff88;
             text-shadow: 0 0 10px rgba(0,255,136,0.3);
@@ -117,20 +119,77 @@
             box-shadow: 0 0 15px rgba(0,255,136,0.5);
         }
 
-        .level-up {
-            animation: level-up 0.5s ease-out;
+        #high-scores {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.8);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #00ff88;
+            max-width: 250px;
+            display: none;
         }
 
-        @keyframes level-up {
-            0% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.2); opacity: 0.8; }
-            100% { transform: scale(1); opacity: 1; }
+        #high-scores.show {
+            display: block;
+        }
+
+        .high-score-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 0;
+            padding: 5px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 5px;
+        }
+
+        #name-input {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.9);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            border: 2px solid #00ff88;
+            z-index: 3;
+        }
+
+        #name-input input {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid #00ff88;
+            color: white;
+            padding: 8px;
+            margin: 10px 0;
+            border-radius: 5px;
+            width: 200px;
+        }
+
+        #show-scores {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.5);
+            border: 1px solid #00ff88;
+            color: #00ff88;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
     <div id="score-display">Score: 0</div>
     <div id="level-display">Level: 1</div>
+    <button id="show-scores" onclick="toggleHighScores()">High Scores</button>
+    <div id="high-scores">
+        <h3>Top Scores</h3>
+        <div id="high-scores-list"></div>
+    </div>
+
     <div id="game-container">
         <canvas id="game-board"></canvas>
         <div id="game-over">
@@ -139,6 +198,13 @@
             <p>Final Level: <span id="final-level">1</span></p>
             <button id="restart-btn">Play Again</button>
         </div>
+    </div>
+
+    <div id="name-input">
+        <h3>New High Score!</h3>
+        <input type="text" id="player-name" placeholder="Enter your name" maxlength="15">
+        <br>
+        <button onclick="saveHighScore()">Save</button>
     </div>
     
     <div class="joystick-container">
@@ -149,6 +215,48 @@
     </div>
 
     <script>
+        // High Score System
+        let highScores = JSON.parse(localStorage.getItem('snakeHighScores')) || [];
+        const MAX_SCORES = 5;
+
+        function toggleHighScores() {
+            const hs = document.getElementById('high-scores');
+            hs.classList.toggle('show');
+        }
+
+        function showHighScores() {
+            const list = document.getElementById('high-scores-list');
+            list.innerHTML = highScores
+                .sort((a, b) => b.score - a.score)
+                .slice(0, MAX_SCORES)
+                .map((score, index) => `
+                    <div class="high-score-item">
+                        <span>${index + 1}. ${score.name}</span>
+                        <span>${score.score}</span>
+                    </div>
+                `).join('');
+        }
+
+        function saveHighScore() {
+            const name = document.getElementById('player-name').value.trim() || 'Player';
+            const newScore = {
+                name: name,
+                score: score,
+                level: level,
+                date: new Date().toISOString()
+            };
+
+            highScores.push(newScore);
+            highScores.sort((a, b) => b.score - a.score);
+            highScores = highScores.slice(0, MAX_SCORES);
+            localStorage.setItem('snakeHighScores', JSON.stringify(highScores));
+            
+            document.getElementById('name-input').style.display = 'none';
+            showHighScores();
+            document.getElementById('game-over').style.display = 'block';
+        }
+
+        // Game Code
         const canvas = document.getElementById('game-board');
         const ctx = canvas.getContext('2d');
         const scoreDisplay = document.getElementById('score-display');
@@ -267,8 +375,6 @@
             if(newLevel > level) {
                 level = newLevel;
                 levelDisplay.textContent = `Level: ${level}`;
-                levelDisplay.classList.add('level-up');
-                setTimeout(() => levelDisplay.classList.remove('level-up'), 1000);
                 baseSpeed = Math.max(50, 150 - (level * 10));
                 if(gameLoop) {
                     clearInterval(gameLoop);
@@ -309,17 +415,14 @@
             ctx.fillStyle = '#1a1a2e';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Draw play area with visible walls
             const playAreaSize = tileCount * gridSize;
             ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
             ctx.fillRect(0, 0, playAreaSize, playAreaSize);
             
-            // Draw grid walls
             ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
             ctx.lineWidth = 2;
             ctx.strokeRect(0, 0, playAreaSize, playAreaSize);
 
-            // Draw food
             ctx.fillStyle = '#ff0066';
             ctx.shadowColor = '#ff0066';
             ctx.shadowBlur = 20;
@@ -334,7 +437,6 @@
             ctx.fill();
             ctx.shadowBlur = 0;
 
-            // Draw snake body
             const bodyGradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
             bodyGradient.addColorStop(0, '#00ff88');
             bodyGradient.addColorStop(1, '#00cc77');
@@ -356,7 +458,6 @@
                 }
             });
 
-            // Draw snake head
             const head = snake[0];
             const headX = head.x * gridSize;
             const headY = head.y * gridSize;
@@ -397,7 +498,6 @@
             }
             ctx.fill();
 
-            // Draw eyes
             const eyeSize = size/5;
             [ -1, 1 ].forEach(i => {
                 ctx.fillStyle = 'rgba(255,255,255,0.9)';
@@ -442,9 +542,17 @@
 
         function gameOver() {
             clearInterval(gameLoop);
-            gameOverScreen.style.display = 'block';
+            const minScore = highScores.length > 0 ? Math.min(...highScores.map(s => s.score)) : 0;
+            
+            if(highScores.length < MAX_SCORES || score > minScore) {
+                document.getElementById('name-input').style.display = 'block';
+            } else {
+                document.getElementById('game-over').style.display = 'block';
+            }
+            
             finalScore.textContent = score;
             finalLevel.textContent = level;
+            showHighScores();
         }
 
         restartBtn.addEventListener('click', () => {
@@ -457,7 +565,8 @@
             baseSpeed = 150;
             scoreDisplay.textContent = 'Score: 0';
             levelDisplay.textContent = 'Level: 1';
-            gameOverScreen.style.display = 'none';
+            document.getElementById('game-over').style.display = 'none';
+            document.getElementById('name-input').style.display = 'none';
             startGame();
         });
 
@@ -466,6 +575,7 @@
         }, { passive: false });
 
         startGame();
+        showHighScores();
     </script>
 </body>
 </html>
