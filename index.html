@@ -179,15 +179,46 @@
             border-radius: 5px;
             cursor: pointer;
         }
+
+        #pause-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.5);
+            border: 1px solid #00ff88;
+            color: #00ff88;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+           #high-scores .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: transparent;
+            border: none;
+            color: #00ff88;
+            font-size: 1.2em;
+            cursor: pointer;
+        }
+
+        #high-scores .close-btn:hover {
+            color: #ff0066;
+        }
     </style>
 </head>
 <body>
     <div id="score-display">Score: 0</div>
     <div id="level-display">Level: 1</div>
     <button id="show-scores" onclick="toggleHighScores()">High Scores</button>
+    <button id="pause-btn" onclick="togglePause()">Pause</button>
     <div id="high-scores">
         <h3>Top Scores</h3>
         <div id="high-scores-list"></div>
+        <button class="close-btn" onclick="toggleHighScores()">×</button>
+        <h3>Top Scores</h3>
+        <div id="high-scores-list"></div>
+    </div>
     </div>
 
     <div id="game-container">
@@ -215,6 +246,31 @@
     </div>
 
     <script>
+        // Game Initialization
+        const canvas = document.getElementById('game-board');
+        const ctx = canvas.getContext('2d');
+        const scoreDisplay = document.getElementById('score-display');
+        const levelDisplay = document.getElementById('level-display');
+        const gameOverScreen = document.getElementById('game-over');
+        const finalScore = document.getElementById('final-score');
+        const finalLevel = document.getElementById('final-level');
+        const restartBtn = document.getElementById('restart-btn');
+        const joystickThumb = document.getElementById('joystick-thumb');
+
+        let gridSize = 20;
+        let tileCount;
+        let snake = [{ x: 10, y: 10 }];
+        let food = { x: 15, y: 15 };
+        let dx = 1;
+        let dy = 0;
+        let score = 0;
+        let level = 1;
+        let gameLoop;
+        let baseSpeed = 150;
+        let isTouching = false;
+        let joystickPos = { x: 50, y: 50 };
+        let isPaused = false;
+
         // High Score System
         let highScores = JSON.parse(localStorage.getItem('snakeHighScores')) || [];
         const MAX_SCORES = 5;
@@ -255,30 +311,23 @@
             showHighScores();
             document.getElementById('game-over').style.display = 'block';
         }
+        
+        // Game Logic
+        function startGame() {
+            if (gameLoop) clearInterval(gameLoop);
+            gameLoop = setInterval(update, baseSpeed);
+        }
 
-        // Game Code
-        const canvas = document.getElementById('game-board');
-        const ctx = canvas.getContext('2d');
-        const scoreDisplay = document.getElementById('score-display');
-        const levelDisplay = document.getElementById('level-display');
-        const gameOverScreen = document.getElementById('game-over');
-        const finalScore = document.getElementById('final-score');
-        const finalLevel = document.getElementById('final-level');
-        const restartBtn = document.getElementById('restart-btn');
-        const joystickThumb = document.getElementById('joystick-thumb');
-
-        let gridSize = 20;
-        let tileCount;
-        let snake = [{ x: 10, y: 10 }];
-        let food = { x: 15, y: 15 };
-        let dx = 1;
-        let dy = 0;
-        let score = 0;
-        let level = 1;
-        let gameLoop;
-        let baseSpeed = 150;
-        let isTouching = false;
-        let joystickPos = { x: 50, y: 50 };
+        function togglePause() {
+            isPaused = !isPaused;
+            if (isPaused) {
+                clearInterval(gameLoop);
+                document.getElementById('pause-btn').textContent = 'Resume';
+            } else {
+                startGame();
+                document.getElementById('pause-btn').textContent = 'Pause';
+            }
+        }
 
         function resizeCanvas() {
             const container = document.getElementById('game-container');
@@ -383,12 +432,9 @@
             }
         }
 
-        function startGame() {
-            if(gameLoop) clearInterval(gameLoop);
-            gameLoop = setInterval(update, baseSpeed);
-        }
-
         function update() {
+            if (isPaused) return;
+
             joystickThumb.setAttribute('cx', joystickPos.x);
             joystickThumb.setAttribute('cy', joystickPos.y);
 
