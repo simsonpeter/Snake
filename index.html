@@ -110,6 +110,7 @@
             border: 1px solid #00ff88;
             max-width: 250px;
             display: none; /* Hidden by default */
+            z-index: 3; /* Ensure it's above other elements */
         }
 
         #high-scores.show {
@@ -136,7 +137,7 @@
             border-radius: 10px;
             text-align: center;
             border: 2px solid #00ff88;
-            z-index: 3;
+            z-index: 4; /* Ensure it's above other elements */
         }
 
         #name-input input {
@@ -159,6 +160,7 @@
             padding: 10px 20px;
             border-radius: 5px;
             cursor: pointer;
+            z-index: 2; /* Ensure it's above other elements */
         }
 
         /* Navi Keys (Positioned Below the Playable Area) */
