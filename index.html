@@ -109,11 +109,11 @@
             border-radius: 10px;
             border: 1px solid #00ff88;
             max-width: 250px;
-            display: none;
+            display: none; /* Hidden by default */
         }
 
         #high-scores.show {
-            display: block;
+            display: block; /* Show when toggled */
         }
 
         .high-score-item {
@@ -296,7 +296,8 @@
 
         function toggleHighScores() {
             const hs = document.getElementById('high-scores');
-            hs.classList.toggle('show');
+            hs.classList.toggle('show'); // Toggle visibility
+            showHighScores(); // Refresh the high scores list
         }
 
         function showHighScores() {
@@ -523,4 +524,4 @@
         showHighScores();
     </script>
 </body>
-</html>
+</html
