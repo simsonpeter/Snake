@@ -34,6 +34,7 @@
             align-items: center;
             width: 100%;
             padding: 20px;
+            position: relative;
         }
 
         #game-board {
@@ -43,7 +44,7 @@
             max-width: 95vmin;
             max-height: 95vmin;
             aspect-ratio: 1/1;
-            box-shadow: 0 0 30px rgba(0,0,0,0.3);
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
         }
 
         #score-display {
@@ -51,8 +52,8 @@
             top: 20px;
             left: 20px;
             font-size: 2em;
-            text-shadow: 0 0 10px rgba(255,255,255,0.3);
-            background: rgba(0,0,0,0.3);
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+            background: rgba(0, 0, 0, 0.3);
             padding: 10px 20px;
             border-radius: 10px;
         }
@@ -63,7 +64,7 @@
             left: 20px;
             font-size: 1.5em;
             color: #00ff88;
-            text-shadow: 0 0 10px rgba(0,255,136,0.3);
+            text-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
         }
 
         #game-over {
@@ -72,12 +73,12 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: rgba(0,0,0,0.95);
+            background: rgba(0, 0, 0, 0.95);
             padding: 30px 40px;
             border-radius: 20px;
             text-align: center;
             border: 2px solid #00ff88;
-            box-shadow: 0 0 30px rgba(0,255,136,0.2);
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.2);
             z-index: 2;
         }
 
@@ -91,19 +92,19 @@
             font-weight: bold;
             transition: all 0.2s;
             margin-top: 15px;
-            filter: drop-shadow(0 0 5px rgba(0,255,136,0.3));
+            filter: drop-shadow(0 0 5px rgba(0, 255, 136, 0.3));
         }
 
         button#restart-btn:hover {
             transform: scale(1.05);
-            box-shadow: 0 0 15px rgba(0,255,136,0.5);
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.5);
         }
 
         #high-scores {
             position: fixed;
             top: 20px;
             right: 20px;
-            background: rgba(0,0,0,0.8);
+            background: rgba(0, 0, 0, 0.8);
             padding: 15px;
             border-radius: 10px;
             border: 1px solid #00ff88;
@@ -120,7 +121,7 @@
             justify-content: space-between;
             margin: 5px 0;
             padding: 5px;
-            background: rgba(255,255,255,0.05);
+            background: rgba(255, 255, 255, 0.05);
             border-radius: 5px;
         }
 
@@ -130,7 +131,7 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: rgba(0,0,0,0.9);
+            background: rgba(0, 0, 0, 0.9);
             padding: 20px;
             border-radius: 10px;
             text-align: center;
@@ -139,7 +140,7 @@
         }
 
         #name-input input {
-            background: rgba(255,255,255,0.1);
+            background: rgba(255, 255, 255, 0.1);
             border: 1px solid #00ff88;
             color: white;
             padding: 8px;
@@ -152,7 +153,7 @@
             position: fixed;
             top: 20px;
             right: 20px;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0, 0, 0, 0.5);
             border: 1px solid #00ff88;
             color: #00ff88;
             padding: 10px 20px;
@@ -160,72 +161,29 @@
             cursor: pointer;
         }
 
-        #pause-btn {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: rgba(0,0,0,0.5);
-            border: 1px solid #00ff88;
-            color: #00ff88;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        /* PS-Style Joystick Keypad */
-        #direction-keypad {
+        /* Navi Keys (Positioned Below the Playable Area) */
+        #navi-keys {
             position: fixed;
             bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-            z-index: 1;
-        }
-
-        #direction-keypad .joystick {
-            width: 100px;
-            height: 100px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 2px solid #00ff88;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-        }
-
-        #direction-keypad .joystick::before {
-            content: '';
-            width: 40px;
-            height: 40px;
-            background: #00ff88;
-            border-radius: 50%;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }
-
-        #direction-keypad .d-pad {
             display: grid;
             grid-template-areas:
                 ". up ."
                 "left . right"
                 ". down .";
             gap: 10px;
+            z-index: 1; /* Ensure nav keys are above the game board */
         }
 
-        #direction-keypad button {
+        #navi-keys button {
             background: rgba(255, 255, 255, 0.1);
             border: 1px solid #00ff88;
             color: #00ff88;
             font-size: 1.5em;
             width: 50px;
             height: 50px;
-            border-radius: 50%;
+            border-radius: 10px;
             cursor: pointer;
             transition: all 0.2s;
             display: flex;
@@ -233,11 +191,11 @@
             align-items: center;
         }
 
-        #direction-keypad button:hover {
+        #navi-keys button:hover {
             background: rgba(255, 255, 255, 0.2);
         }
 
-        #direction-keypad button:active {
+        #navi-keys button:active {
             transform: scale(0.9);
         }
 
@@ -256,13 +214,26 @@
         #right {
             grid-area: right;
         }
+
+        /* Pause Button (Positioned at Bottom Right) */
+        #pause-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #00ff88;
+            color: #00ff88;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            z-index: 1; /* Ensure pause button is above the game board */
+        }
     </style>
 </head>
 <body>
     <div id="score-display">Score: 0</div>
     <div id="level-display">Level: 1</div>
     <button id="show-scores" onclick="toggleHighScores()">High Scores</button>
-    <button id="pause-btn" onclick="togglePause()">Pause</button>
     <div id="high-scores">
         <button class="close-btn" onclick="toggleHighScores()">×</button>
         <h3>Top Scores</h3>
@@ -279,22 +250,21 @@
         </div>
     </div>
 
+    <!-- Navi Keys (Positioned Below the Playable Area) -->
+    <div id="navi-keys">
+        <button id="up" onclick="changeDirection(0, -1)">↑</button>
+        <button id="left" onclick="changeDirection(-1, 0)">←</button>
+        <button id="right" onclick="changeDirection(1, 0)">→</button>
+        <button id="down" onclick="changeDirection(0, 1)">↓</button>
+    </div>
+    <!-- Pause Button (Positioned at Bottom Right) -->
+    <button id="pause-btn" onclick="togglePause()">Pause</button>
+
     <div id="name-input">
         <h3>New High Score!</h3>
         <input type="text" id="player-name" placeholder="Enter your name" maxlength="15">
         <br>
         <button onclick="saveHighScore()">Save</button>
-    </div>
-    
-    <!-- PS-Style Joystick Keypad -->
-    <div id="direction-keypad">
-        <div class="joystick"></div>
-        <div class="d-pad">
-            <button id="up" onclick="changeDirection(0, -1)">↑</button>
-            <button id="left" onclick="changeDirection(-1, 0)">←</button>
-            <button id="right" onclick="changeDirection(1, 0)">→</button>
-            <button id="down" onclick="changeDirection(0, 1)">↓</button>
-        </div>
     </div>
 
     <script>
@@ -441,12 +411,17 @@
             ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
             ctx.fillRect(0, 0, playAreaSize, playAreaSize);
             
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+            // Draw glowing red walls (always glowing)
+            ctx.strokeStyle = '#ff0000';
+            ctx.shadowColor = '#ff0000';
+            ctx.shadowBlur = 20;
             ctx.lineWidth = 2;
             ctx.strokeRect(0, 0, playAreaSize, playAreaSize);
+            ctx.shadowBlur = 0;
 
-            ctx.fillStyle = '#ff0066';
-            ctx.shadowColor = '#ff0066';
+            // Draw glowing green food
+            ctx.fillStyle = '#00ff88';
+            ctx.shadowColor = '#00ff88';
             ctx.shadowBlur = 20;
             ctx.beginPath();
             ctx.arc(
