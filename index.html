@@ -287,9 +287,9 @@
         let dx = 1;
         let dy = 0;
         let score = 0;
-        let level = 1;
+        let level = parseInt(localStorage.getItem('currentLevel')) || 1; // Load saved level
         let gameLoop;
-        let baseSpeed = 150;
+        let baseSpeed = 200 - (level * 10); // Slower initial speed, increases with level
         let isPaused = false;
 
         // High Score System
@@ -376,7 +376,8 @@
             if(newLevel > level) {
                 level = newLevel;
                 levelDisplay.textContent = `Level: ${level}`;
-                baseSpeed = Math.max(50, 150 - (level * 10));
+                baseSpeed = 200 - (level * 10); // Increase speed gradually
+                localStorage.setItem('currentLevel', level); // Save current level
                 if(gameLoop) {
                     clearInterval(gameLoop);
                     gameLoop = setInterval(update, baseSpeed);
@@ -510,7 +511,7 @@
             dy = 0;
             score = 0;
             level = 1;
-            baseSpeed = 150;
+            baseSpeed = 200 - (level * 10); // Reset speed
             scoreDisplay.textContent = 'Score: 0';
             levelDisplay.textContent = 'Level: 1';
             document.getElementById('game-over').style.display = 'none';
